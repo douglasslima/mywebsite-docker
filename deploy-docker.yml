@@ -1,0 +1,50 @@
+---
+- hosts: dev
+  become: true
+  tasks:
+  - name: Clone Project
+    git:
+      repo: https://github.com/douglasslima/mywebsite-docker.git
+      dest: /home/vagrant/deploy
+      
+  - name: Install pip3
+    apt: name=python3-pip state=present 
+      
+  - name: Install Docker Module for Python
+    pip:
+      name: docker
+      
+  - name: Remove container image
+    docker_image:
+      name: mywebsite-docker-image
+      path: /home/vagrant/deploy/
+      dockerfile: Dockerfile
+      state: absent
+      force: yes
+      
+  - name: Build container image
+    docker_image:
+      name: mywebsite-docker-image
+      path: /home/vagrant/deploy/
+      dockerfile: Dockerfile
+      state: present
+      force: yes
+
+  - name: Delete container
+    docker_container:
+      name: mywebsite-docker-container
+      image:  mywebsite-docker-image
+      state: absent
+      auto_remove: yes
+
+  - name: Start container
+    docker_container:
+      name: mywebsite-docker-container
+      image:  mywebsite-docker-image
+      state: started
+      restart: yes
+      recreate: yes
+      auto_remove: yes
+      ports:
+       - "80:80"
+       

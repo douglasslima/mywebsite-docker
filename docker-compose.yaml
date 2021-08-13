@@ -1,0 +1,8 @@
+version: '2'
+services:
+  mywebsite-docker:
+    build: .
+    container_name: mywebsite-docker
+    restart: always
+    ports:
+      - 80:80
